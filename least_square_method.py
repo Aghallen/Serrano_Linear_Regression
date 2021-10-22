@@ -17,10 +17,3 @@ class LeastSquareMethod:
         print(f'\nLinear least-squares for comparison.')
         print(f'slope: {slope_lsm:.2f} intercept: {intercept_lsm:.2f} cost: {cost:.2f}')
 
-        return
-
-        import pathlib
-        full_filename = str(pathlib.Path().absolute().joinpath('lsm.txt'))
-        with open(full_filename, 'w') as f:
-            for obs, pred in zip(y_values, y_lsm):
-                f.write(f'{obs:.1f} {pred:.2f}\n')

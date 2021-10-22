@@ -10,7 +10,7 @@ class DataCreator():
             y = intercept + slope * x
             x_list.append(x)
             y_list.append(y)
-            x += 1
+            # x += 1
 
         self.x_values = np.array(x_list)
         self.y_values = np.array(y_list)

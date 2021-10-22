@@ -1,3 +1,10 @@
+from enum import Enum
+import math
+
+
+class Location(Enum):
+    ABOVE = 0
+    BELOW = 1
 
 
 class Line():
@@ -11,11 +18,10 @@ class Line():
         self.c = None
 
     def create_by_slope_intercept(self, slope, intercept):
-        self.slope = slope
-        self.intercept = intercept
-        self.a = -slope
-        self.b = 1
-        self.c = -intercept
+        # y = slope * x + intercept
+        self.slope = slope; self.intercept = intercept
+        # Ax + By + C = 0
+        self.a = -slope; self.b = 1; self.c = -intercept
         return self
 
     def create_by_ax_bx_c(self, a, b, c):
@@ -25,6 +31,11 @@ class Line():
         self.slope = -a / b
         self.intercept = -c / b
         return self
+
+    def clone(self):
+        my_self = self.__class__()
+        my_self.create_by_slope_intercept(self.slope, self.intercept)
+        return my_self
 
     def f(self, x):
         return self.slope * x + self.intercept
@@ -46,35 +57,40 @@ class Line():
 
         return x, y
 
-    def clip_line(self, xmin, xmax, ymin, ymax):
+    def clip_line(self, frame):
+        x1, y1 = self.clip_point(frame.xmin, frame.ymin, frame.ymax)
+        x2, y2 = self.clip_point(frame.xmax, frame.ymin, frame.ymax)
+        return x1, y1, x2, y2
+
+    def coords_clipped_by_window(self, plot_frame):
+        xmin = plot_frame.xmin
+        xmax = plot_frame.xmax
+        ymin = plot_frame.ymin
+        ymax = plot_frame.ymax
         x1, y1 = self.clip_point(xmin, ymin, ymax)
         x2, y2 = self.clip_point(xmax, ymin, ymax)
         return x1, y1, x2, y2
 
-    # def coordinates_clip_at_spines_OLD(self, xmin, xmax, ymin, ymax):
-    #     y = self.f(xmin)
-    #     if y > ymax:
-    #         y1 = ymax
-    #         x1 = self.f_inverse(ymax)
-    #     elif y < ymin:
-    #         y1 = ymin
-    #         x1 = self.f_inverse(ymin)
-    #     else:
-    #         y1 = y
-    #         x1 = xmin
-    #
-    #     y = self.f(xmax)
-    #     if y > ymax:
-    #         y2 = ymax
-    #         x2 = self.f_inverse(ymax)
-    #     elif y < ymin:
-    #         y2 = ymin
-    #         x2 = self.f_inverse(ymin)
-    #     else:
-    #         y2 = y
-    #         x2 = xmax
-    #
-    #     return x1, y1, x2, y2
+    def coords_clipped_by_y(self, y_min, y_max):
+        if self.slope > 0:
+            x1 = self.f_inverse(y_min)
+            y1 = y_min
+            x2 = self.f_inverse(y_max)
+            y2 = y_max
+        else:
+            x1 = self.f_inverse(y_max)
+            y1 = y_max
+            x2 = self.f_inverse(y_min)
+            y2 = y_min
+
+        return x1, y1, x2, y2
+
+    def move_parallelly(self, distance, location=None):
+        delta_intercept = math.sqrt(1 + self.slope * self.slope) * distance
+        print(f'distance: {distance}')
+        print(f'delta_intercept: {delta_intercept}')
+        print(f'self.intercept + delta_intercept: {self.intercept + delta_intercept}')
+        self.create_by_slope_intercept(self.slope, self.intercept + delta_intercept)
 
 
 if __name__ == '__main__':
